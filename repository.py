@@ -23,6 +23,38 @@ class LibraryRepository:
     def get_book(self, book_id: int):
         return next((b for b in self.books if b.id == book_id), None)
 
+    # -------------------
+    # SAVE
+    # -------------------
+    def save(self):
+        print("DEBUG: Saving to:", self.file_path)
+
+        data = {
+            "books": [b.model_dump() for b in self.books],
+            "patrons": [p.model_dump() for p in self.patrons],
+            "transactions": [t.model_dump() for t in self.transactions],
+        }
+
+        self.file_path.write_text(json.dumps(data, indent=2, default=str))
+
+    # -------------------
+    # LOAD
+    # -------------------
+    def load(self):
+        if not self.file_path.exists():
+            return
+
+        content = self.file_path.read_text().strip()
+
+        if not content:
+            return
+
+        data = json.loads(content)
+
+        self.books = [Book.model_validate(b) for b in data["books"]]
+        self.patrons = [Patron.model_validate(p) for p in data["patrons"]]
+        self.transactions = [Transaction.model_validate(t) for t in data["transactions"]]
+
     def add_patron(self, patron):
         self.patrons.append(patron)
 
@@ -34,12 +66,3 @@ class LibraryRepository:
 
     def get_transaction(self, transaction_id):
         return next((t for t in self.transactions if t.id == transaction_id), None)
-    
-    def save(self):
-        data = {
-            "books": [b.model_dump() for b in self.books],
-        }
-
-    def load(self):
-        data = json.loads(Path(self.file_path).read_text())
-        self.books = [Book.model_validate(b) for b in data["books"]]
