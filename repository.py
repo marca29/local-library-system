@@ -1,6 +1,7 @@
 import json
 from typing import List
 from models import Book, Patron, Transaction
+from pathlib import Path
 
 
 class LibraryRepository:
@@ -33,3 +34,12 @@ class LibraryRepository:
 
     def get_transaction(self, transaction_id):
         return next((t for t in self.transactions if t.id == transaction_id), None)
+    
+    def save(self):
+        data = {
+            "books": [b.model_dump() for b in self.books],
+        }
+
+    def load(self):
+        data = json.loads(Path(self.file_path).read_text())
+        self.books = [Book.model_validate(b) for b in data["books"]]
