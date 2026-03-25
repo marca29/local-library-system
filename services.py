@@ -24,13 +24,11 @@ class LibraryService:
         )
 
         self.repo.transactions.append(transaction)
+        print(f"Transaction number {transaction.id}")
         return transaction
 
     def return_book(self, transaction_id: int):
-        transaction = next(
-            (t for t in self.repo.transactions if t.id == transaction_id),
-            None
-        )
+        transaction = self.repo.get_transaction(transaction_id)
 
         if not transaction:
             raise ValueError("Transaction not found")

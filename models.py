@@ -57,8 +57,8 @@ class Transaction(BaseModel):
     return_date: date | None = None
 
     @field_validator("due_date")
-    def validate_due_date(cls, v, values):
-        if "checkout_date" in values and v <= values["checkout_date"]:
+    def validate_due_date(cls, v, info):
+        if "checkout_date" in info.data and v <= info.data["checkout_date"]:
             raise ValueError("Due date must be after checkout")
         return v
 

@@ -6,7 +6,7 @@ from pathlib import Path
 
 class LibraryRepository:
     def __init__(self, file_path="library.json"):
-        self.file_path = file_path
+        self.file_path = Path(file_path)
         self.books: List[Book] = []
         self.patrons: List[Patron] = []
         self.transactions: List[Transaction] = []
@@ -15,7 +15,10 @@ class LibraryRepository:
     # CRUD - BOOKS
     # -------------------
     def add_book(self, book: Book):
+        if any(b.id == book.id for b in self.books):
+            raise ValueError(f"Book with id {book.id} already exists")
         self.books.append(book)
+        self.save()
 
     def remove_book(self, book_id: int):
         self.books = [b for b in self.books if b.id != book_id]
@@ -27,7 +30,6 @@ class LibraryRepository:
     # SAVE
     # -------------------
     def save(self):
-        print("DEBUG: Saving to:", self.file_path)
 
         data = {
             "books": [b.model_dump() for b in self.books],
